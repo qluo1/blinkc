@@ -39,110 +39,110 @@ var util = require ("./util");
 var schema = require ("./schema");
 
 module.provide (
-   create // (schema)
+    create // (schema)
 );
 
 function create (s)
 {
-   var defaultNs = "";
-   var curDef;
-   var pendType;
-   var pendLoc;
-   var nextEnumVal;
+    var defaultNs = "";
+    var curDef;
+    var pendType;
+    var pendLoc;
+    var nextEnumVal;
 
-   function onNsDecl (ns)
-   {
-      defaultNs = ns;
-   }
+    function onNsDecl (ns)
+    {
+        defaultNs = ns;
+    }
 
-   function onStartGroupDef (name, id, super_, annots, loc)
-   {
-      curDef = s.addGroup (name, id, super_, defaultNs, annots, loc);
-   }
+    function onStartGroupDef (name, id, super_, annots, loc)
+    {
+        curDef = s.addGroup (name, id, super_, defaultNs, annots, loc);
+    }
 
-   function onStartDefine (name, id, annots, loc)
-   {
-      curDef = s.addDefine (name, id, defaultNs, annots, loc);
-   }
+    function onStartDefine (name, id, annots, loc)
+    {
+        curDef = s.addDefine (name, id, defaultNs, annots, loc);
+    }
 
-   function onEndDefine () 
-   { 
-      curDef.setType (pendType);
-   }
+    function onEndDefine ()
+    {
+        curDef.setType (pendType);
+    }
 
-   function onStartField (loc) 
-   { 
-      pendLoc = loc; 
-   }
+    function onStartField (loc)
+    {
+        pendLoc = loc;
+    }
 
-   function onEndField (name, id, pres, annots)
-   {
-      curDef.addField (name, id, pendType, pres, annots, pendLoc);
-   }
+    function onEndField (name, id, pres, annots)
+    {
+        curDef.addField (name, id, pendType, pres, annots, pendLoc);
+    }
 
-   function onTypeRef (name, layout, rank, annots, loc)
-   {
-      pendType = new schema.Ref (name, defaultNs, layout, rank, annots, loc);
-   }
+    function onTypeRef (name, layout, rank, annots, loc)
+    {
+        pendType = new schema.Ref (name, defaultNs, layout, rank, annots, loc);
+    }
 
-   function onStringType (rank, maxSize, annots, loc)
-   {
-      pendType = new schema.Type (schema.TypeCode.String, rank, annots, loc);
-      if (maxSize)
-	 pendType.maxSize = maxSize;
-   }
+    function onStringType (rank, maxSize, annots, loc)
+    {
+        pendType = new schema.Type (schema.TypeCode.String, rank, annots, loc);
+        if (maxSize)
+            pendType.maxSize = maxSize;
+    }
 
-   function onBinaryType (rank, maxSize, annots, loc)
-   {
-      pendType = new schema.Type (schema.TypeCode.Binary, rank, annots, loc);
-      if (maxSize)
-	 pendType.maxSize = maxSize;
-   }
+    function onBinaryType (rank, maxSize, annots, loc)
+    {
+        pendType = new schema.Type (schema.TypeCode.Binary, rank, annots, loc);
+        if (maxSize)
+            pendType.maxSize = maxSize;
+    }
 
-   function onFixedType (rank, size, annots, loc)
-   {
-      pendType = new schema.Type (schema.TypeCode.Fixed, rank, annots, loc);
-      pendType.size = size;
-   }
+    function onFixedType (rank, size, annots, loc)
+    {
+        pendType = new schema.Type (schema.TypeCode.Fixed, rank, annots, loc);
+        pendType.size = size;
+    }
 
-   function onFixedDecType (rank, scale, annots, loc)
-   {
-      pendType = new schema.Type (schema.TypeCode.FixedDec, rank, annots, loc);
-      pendType.scale = scale;
-   }
+    function onFixedDecType (rank, scale, annots, loc)
+    {
+        pendType = new schema.Type (schema.TypeCode.FixedDec, rank, annots, loc);
+        pendType.scale = scale;
+    }
 
-   function onPrimType (type, rank, annots, loc)
-   {
-      pendType = new schema.Type (type, rank, annots, loc);
-   }
+    function onPrimType (type, rank, annots, loc)
+    {
+        pendType = new schema.Type (type, rank, annots, loc);
+    }
 
-   function onStartEnum (loc)
-   {
-      pendType = new schema.Enum (loc);
-      nextEnumVal = 0;
-   }
+    function onStartEnum (loc)
+    {
+        pendType = new schema.Enum (loc);
+        nextEnumVal = 0;
+    }
 
-   function onEnumSym (name, val, annots, loc)
-   {
-      val = val || nextEnumVal;
-      nextEnumVal = val*1 + 1;
-      pendType.addSymbol (name, val, annots, loc);
-   }
+    function onEnumSym (name, val, annots, loc)
+    {
+        val = val || nextEnumVal;
+        nextEnumVal = val*1 + 1;
+        pendType.addSymbol (name, val, annots, loc);
+    }
 
-   function onSchemaAnnot (annots, loc)
-   {
-      s.addAnnotations (annots, defaultNs);
-   }
+    function onSchemaAnnot (annots, loc)
+    {
+        s.addAnnotations (annots, defaultNs);
+    }
 
-   function onIncrAnnot (name, substep, pathType, id, annots, loc)
-   {
-      s.addIncrAnnot (name, defaultNs, substep, pathType, id, annots, loc);
-   }
+    function onIncrAnnot (name, substep, pathType, id, annots, loc)
+    {
+        s.addIncrAnnot (name, defaultNs, substep, pathType, id, annots, loc);
+    }
 
-   return util.toInterface (
-      onNsDecl, onStartGroupDef, onStartField, onEndField, onStartDefine,
-      onEndDefine, onStartEnum, onTypeRef, onStringType, onBinaryType, 
-      onFixedType, onPrimType, onFixedDecType, onEnumSym, onSchemaAnnot, 
-      onIncrAnnot
-   );
+    return util.toInterface (
+        onNsDecl, onStartGroupDef, onStartField, onEndField, onStartDefine,
+        onEndDefine, onStartEnum, onTypeRef, onStringType, onBinaryType,
+        onFixedType, onPrimType, onFixedDecType, onEnumSym, onSchemaAnnot,
+        onIncrAnnot
+    );
 }

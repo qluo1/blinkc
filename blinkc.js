@@ -40,85 +40,85 @@ var schema = require ("./schema");
 var digest = require ("./digest");
 
 var BootCl = [
-   "blinkc.js",
-   "  -m/--method <method>   # Output method: java, ...",
-   "                         # If the method name starts with ./ or ../,",
-   "                         # then the implementation is resolved",
-   "                         # realtive to the current directory",
-   "  [-o/--output <target>] # Output file or directory depending on method",
-   "  [-v/--verbose...]      # Verbosity level, repeat for increased level",
-   "  [schema ...]           # Schema files to process"
+    "blinkc.js",
+    "  -m/--method <method>   # Output method: java, ...",
+    "                         # If the method name starts with ./ or ../,",
+    "                         # then the implementation is resolved",
+    "                         # realtive to the current directory",
+    "  [-o/--output <target>] # Output file or directory depending on method",
+    "  [-v/--verbose...]      # Verbosity level, repeat for increased level",
+    "  [schema ...]           # Schema files to process"
 ];
 
 var cl = util.parseCmdLine (BootCl, {
-   ignoreUnknowns: true, disableHelp: true 
+    ignoreUnknowns: true, disableHelp: true
 });
 
 var method = cl.get ("method");
 
 if (method === "signatures")
 {
-   loadSchemas (cl.getList ("schema"), function (s) {
-      s.getGroups ().forEach (function (g) {
-         console.log ("0x" + g.hash, digest.getSignature (g, s));
-      });
-   });
-   process.exit (0);
+    loadSchemas (cl.getList ("schema"), function (s) {
+        s.getGroups ().forEach (function (g) {
+            console.log ("0x" + g.hash, digest.getSignature (g, s));
+        });
+    });
+    process.exit (0);
 }
 
 if (method.match (/^\.\.?\//) || method.match (/^\//))
-   method = require ("path").resolve (method);
+    method = require ("path").resolve (method);
 
 var mod = loadMod ("./" + method) || loadMod (method);
 
 if (mod)
-   mod.start (cl, loadSchemas);
+    mod.start (cl, loadSchemas);
 else
 {
-   console.error ("No such output method: " + cl.get ("method"));
-   process.exit (1);
+    console.error ("No such output method: " + cl.get ("method"));
+    process.exit (1);
 }
 
 function loadSchemas (arg1, arg2)
 {
-   var schemas = arg2 ? arg1 : false;
-   var onLoaded = arg2 || arg1;
+    var schemas = arg2 ? arg1 : false;
+    var onLoaded = arg2 || arg1;
 
-   if (schemas && schemas.length)
-      transform (schema.create (schemas));
-   else
-   {
-      var data = "";
-      process.stdin.resume ();
-      process.stdin.on ("data", function (d) { data += d });
-      process.stdin.on ("end", function () { 
-         var s = new schema.Schema ();
-         s.readFromString (data);
-         transform (s);
-      });
-   }
+    if (schemas && schemas.length)
+        transform (schema.create (schemas));
+    else
+    {
+        var data = "";
+        process.stdin.resume ();
+        process.stdin.on ("data", function (d) { data += d });
+        process.stdin.on ("end", function () {
+            var s = new schema.Schema ();
+            s.readFromString (data);
+            transform (s);
+        });
+    }
 
-   function transform (s)
-   {
-      s.finalize ();
-      onLoaded (s);
-   }
+    function transform (s)
+    {
+        s.finalize ();
+        onLoaded (s);
+    }
 }
 
 function loadMod (mod)
 {
-   try
-   {
-      var m = require (mod);
-      if (cl.count ("verbose") > 0)
-	 console.error ("Loading output module: " + require.resolve (mod));
-      return m;
-   }
-   catch (e)
-   {
-      if (e.code == "MODULE_NOT_FOUND" && util.endsWith (e + "", method + "'"))
-         return false;
-      else
-         throw e;
-   }
+    try
+    {
+        var m = require (mod);
+        if (cl.count ("verbose") > 0)
+            console.error ("Loading output module: " + require.resolve (mod));
+        return m;
+    }
+    catch (e)
+    {
+        if (e.code == "MODULE_NOT_FOUND" && util.endsWith (e + "", method + "'"))
+            return false;
+        else
+            throw e;
+    }
 }

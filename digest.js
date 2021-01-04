@@ -41,23 +41,23 @@ var crypto = require ("crypto");
 
 module.provide (
 
-   // Returns the SHA-1 hash of the type signature for the specified
-   // group or type definition. The hash is returned as a hex string
+    // Returns the SHA-1 hash of the type signature for the specified
+    // group or type definition. The hash is returned as a hex string
 
-   getHash, // (groupOrDefine, schema)
+    getHash, // (groupOrDefine, schema)
 
-   // Returns the type signature string for the specified group or
-   // type definition
+    // Returns the type signature string for the specified group or
+    // type definition
 
-   getSignature // (groupOrDefine, schema)
+    getSignature // (groupOrDefine, schema)
 );
 
 var TypeToken = [
-   'c' /* I8 */, 'C' /* U8 */, 's' /* I16 */, 'S' /* U16 */, 'i' /* I32 */,
-   'I' /* U32 */, 'l' /* I64 */, 'L' /* U64 */, 'f' /* F64 */, 'd' /* Dec */,
-   'F' /* FixedDec */, 'D' /* Date */, 'm' /* TimeOfDayMilli */, 
-   'n' /* TimeOfDayNano */, 'N' /* Nano */, 'M' /* Milli */, 'B' /* Bool */, 
-   'O' /* Obj */, 'U' /* Str */, 'V' /* Bin */, 'X' /* Fixed */
+    'c' /* I8 */, 'C' /* U8 */, 's' /* I16 */, 'S' /* U16 */, 'i' /* I32 */,
+    'I' /* U32 */, 'l' /* I64 */, 'L' /* U64 */, 'f' /* F64 */, 'd' /* Dec */,
+    'F' /* FixedDec */, 'D' /* Date */, 'm' /* TimeOfDayMilli */,
+    'n' /* TimeOfDayNano */, 'N' /* Nano */, 'M' /* Milli */, 'B' /* Bool */,
+    'O' /* Obj */, 'U' /* Str */, 'V' /* Bin */, 'X' /* Fixed */
 ];
 
 var RefToken = 'R';
@@ -66,87 +66,87 @@ var EnumToken = 'E';
 
 function getSignature (def, schema)
 {
-   var sig;
+    var sig;
 
-   function getDefHash (d)
-   {
-      if (d)
-      {
-         if (util.isUndefined (d.hash))
-         {
-            d.hash = 0; // Prevent accidental infinite loops
-            d.hash = getHash (d, schema);
-         }
+    function getDefHash (d)
+    {
+        if (d)
+        {
+            if (util.isUndefined (d.hash))
+            {
+                d.hash = 0; // Prevent accidental infinite loops
+                d.hash = getHash (d, schema);
+            }
 
-         return d.hash;
-      }
-   }
+            return d.hash;
+        }
+    }
 
-   function addType (t)
-   {
-      if (t.isEnum ())
-         sig.push (EnumToken);
-      else if (t.isRef ())
-      {
-         var d = schema.find (t.name, t.ns);
-         if (t.isDynamic ())
-            sig.push (DynRefToken, d.qname);
-         else
-            sig.push (RefToken, getDefHash (d))
-         sig.push (';');
-      }
-      else
-      {
-         sig.push (TypeToken [t.code.val]);
-         switch (t.code)
-         {
-         case scm.TypeCode.String: case scm.TypeCode.Binary:
-            if (t.maxSize)
-               sig.push (t.maxSize);
-            break;
-         case scm.TypeCode.Fixed:
-            sig.push (t.size);
-            break;
-         case scm.TypeCode.FixedDec:
-            sig.push (t.scale);
-            break;
-         }
-      }
+    function addType (t)
+    {
+        if (t.isEnum ())
+            sig.push (EnumToken);
+        else if (t.isRef ())
+        {
+            var d = schema.find (t.name, t.ns);
+            if (t.isDynamic ())
+                sig.push (DynRefToken, d.qname);
+            else
+                sig.push (RefToken, getDefHash (d))
+            sig.push (';');
+        }
+        else
+        {
+            sig.push (TypeToken [t.code.val]);
+            switch (t.code)
+            {
+                case scm.TypeCode.String: case scm.TypeCode.Binary:
+                    if (t.maxSize)
+                        sig.push (t.maxSize);
+                    break;
+                case scm.TypeCode.Fixed:
+                    sig.push (t.size);
+                    break;
+                case scm.TypeCode.FixedDec:
+                    sig.push (t.scale);
+                    break;
+            }
+        }
 
-      if (t.isSequence ())
-         sig.push ('*');
-   }
+        if (t.isSequence ())
+            sig.push ('*');
+    }
 
-   function addField (f)
-   {
-      addType (f.type);
-      sig.push (f.name);
-      sig.push (f.isOptional () ? '?' : '!');
-   }
+    function addField (f)
+    {
+        addType (f.type);
+        sig.push (f.name);
+        sig.push (f.isOptional () ? '?' : '!');
+    }
 
-   if (def instanceof scm.Group)
-   {
-      sig = [def.qname, '>'];
+    if (def instanceof scm.Group)
+    {
+        sig = [def.qname, '>'];
 
-      if (def.super_)
-         sig.push (getDefHash (schema.find (def.super_)));
-      
-      sig.push ('>');
-      
-      def.fields.forEach (addField);
-   }
-   else
-   {
-      sig = [def.qname, '='];
-      addType (def.type);
-   }
+        if (def.super_)
+            sig.push (getDefHash (schema.find (def.super_)));
 
-   return sig.join ('');
+        sig.push ('>');
+
+        def.fields.forEach (addField);
+    }
+    else
+    {
+        sig = [def.qname, '='];
+        addType (def.type);
+    }
+
+    return sig.join ('');
 }
 
 function getHash (def, schema)
 {
-   var sig = getSignature (def, schema);
-   var fullHash = crypto.createHash ("sha1").update (sig).digest ("hex");
-   return fullHash.slice (0, 16);
+    var sig = getSignature (def, schema);
+    var fullHash = crypto.createHash ("sha1").update (sig).digest ("hex");
+    return fullHash.slice (0, 16);
 }

@@ -42,399 +42,399 @@ var fs = require ("fs");
 
 module.provide (
 
-   // Returns true if arg is a string
+    // Returns true if arg is a string
 
-   isString, // (val)
+    isString, // (val)
 
-   // Returns true if arg is a number
+    // Returns true if arg is a number
 
-   isNumber, // (val)
+    isNumber, // (val)
 
-   // Returns true if arg is a funtion object
+    // Returns true if arg is a funtion object
 
-   isFunction, // (val)
-   
-   // Returns true if the arg is an array
+    isFunction, // (val)
 
-   isArray, // (val)
+    // Returns true if the arg is an array
 
-   // Returns true if arg is an enum symbol
+    isArray, // (val)
 
-   isEnum, // (val)
+    // Returns true if arg is an enum symbol
 
-   // Copies all properties from the second arg to the first
-   // arg, returns the first arg
+    isEnum, // (val)
 
-   extend, // (obj, ext)
+    // Copies all properties from the second arg to the first
+    // arg, returns the first arg
 
-   // Returns a shallow clone of the specified object
+    extend, // (obj, ext)
 
-   clone, // (obj)
+    // Returns a shallow clone of the specified object
 
-   // Returns an array with all the names of the properties in obj
-   
-   getPropertyArray, // (obj)
+    clone, // (obj)
 
-   // Turns the arg into a real array. Use with built-in arguments for
-   // example: 
-   //    var argsAsArray = toArray (arguments);
+    // Returns an array with all the names of the properties in obj
 
-   toArray, // (val)
+    getPropertyArray, // (obj)
 
-   // Flattens one or more arrays. Items in subarrays are recurisvely
-   // added to the flat result array.
+    // Turns the arg into a real array. Use with built-in arguments for
+    // example:
+    //    var argsAsArray = toArray (arguments);
 
-   flatten, // (array ...)
+    toArray, // (val)
 
-   // Flattens an arguments array. Items in subarrays are recurisvely
-   // added to the flat result array. If begin is specified, then begin
-   // and end will be used to create a slice of the initial arguments
-   // list before flattening
+    // Flattens one or more arrays. Items in subarrays are recurisvely
+    // added to the flat result array.
 
-   flattenArgs, // (arguments [, begin [, end]])
+    flatten, // (array ...)
 
-   // Returns true if the arg is defined
+    // Flattens an arguments array. Items in subarrays are recurisvely
+    // added to the flat result array. If begin is specified, then begin
+    // and end will be used to create a slice of the initial arguments
+    // list before flattening
 
-   isDefined, // (val)
+    flattenArgs, // (arguments [, begin [, end]])
 
-   // Returns true if the arg is undefined
+    // Returns true if the arg is defined
 
-   isUndefined, // (val)
+    isDefined, // (val)
 
-   // Parses the command line (process.argv) as specified by the
-   // supplied command line specification. Returns a command line
-   // object where you can lookup the parameters by name:
-   //
-   //   var foo = cl.get ("foo");
-   //   var bar = cl.getList ("bar");
+    // Returns true if the arg is undefined
 
-   parseCmdLine, // (spec [, props])
-   
-   // Returns an enum object that contains properties that corresponds
-   // to a list of symbols. The list of symbols is created by
-   // flattening the arguments array. Each symbol is either a string
-   // or an object. If it is a string, the enum property will be
-   // assigned a positional integer. If it is an object, the
-   // properties of the object will be copied to the enum object.
-   //
-   // The resulting enum object will also have a method, toSymbol for
-   // converting from a value back to the corresponding symbol string
-   // if possible.
+    isUndefined, // (val)
 
-   toEnum, // (sym ...)
+    // Parses the command line (process.argv) as specified by the
+    // supplied command line specification. Returns a command line
+    // object where you can lookup the parameters by name:
+    //
+    //   var foo = cl.get ("foo");
+    //   var bar = cl.getList ("bar");
 
-   // Returns true if the second string is a prefix of the first
-   // string
+    parseCmdLine, // (spec [, props])
 
-   startsWith, // (s, prefix)
+    // Returns an enum object that contains properties that corresponds
+    // to a list of symbols. The list of symbols is created by
+    // flattening the arguments array. Each symbol is either a string
+    // or an object. If it is a string, the enum property will be
+    // assigned a positional integer. If it is an object, the
+    // properties of the object will be copied to the enum object.
+    //
+    // The resulting enum object will also have a method, toSymbol for
+    // converting from a value back to the corresponding symbol string
+    // if possible.
 
-   // Returns true if the second string is a suffix of the first
-   // string
+    toEnum, // (sym ...)
 
-   endsWith, // (s, suffix)
+    // Returns true if the second string is a prefix of the first
+    // string
 
-   // Returns a string with len spaces
+    startsWith, // (s, prefix)
 
-   spaces, // (len)
+    // Returns true if the second string is a suffix of the first
+    // string
 
-   // Returns the string s possibly padded with spaces at the
-   // end to become len chars long
+    endsWith, // (s, suffix)
 
-   fill, // (s, len)
+    // Returns a string with len spaces
 
-   // Removes leading and trailing whitespace. Replaces internal
-   // sequences of whitespace with single spaces
+    spaces, // (len)
 
-   normalizeSpace,
+    // Returns the string s possibly padded with spaces at the
+    // end to become len chars long
 
-   // Returns an object that as properties has the functions passed as
-   // arguments. The name of each property will be the same as the
-   // name of the function
+    fill, // (s, len)
 
-   toInterface, // (fn ...)
+    // Removes leading and trailing whitespace. Replaces internal
+    // sequences of whitespace with single spaces
 
-   // Sets the functions fn ... as methods to obj. Returns obj.
+    normalizeSpace,
 
-   setInterface, // (obj, fn ...)
+    // Returns an object that as properties has the functions passed as
+    // arguments. The name of each property will be the same as the
+    // name of the function
 
-   // Appends items from all arguments but the first into the first
-   // array, updating
+    toInterface, // (fn ...)
 
-   append, // (result, array ...)
+    // Sets the functions fn ... as methods to obj. Returns obj.
 
-   // Returns true if the string s1 contains s2
+    setInterface, // (obj, fn ...)
 
-   contains, // (s1, s2)
+    // Appends items from all arguments but the first into the first
+    // array, updating
 
-   // Returns the argument string with the first char capitalized
-   
-   capitalize, // (s)
+    append, // (result, array ...)
 
-   // Returns the argument string with the first char translated to
-   // lower case
-   
-   decapitalize, // (s)
-   
-   // Returns the argument string with each letter following a 
-   // character that is not a letter translated into upper case.
-   
-   toCamelCase, // (s)
+    // Returns true if the string s1 contains s2
 
-   // Returns a new array where any duplicates in the argument array
-   // has been removed
-   
-   unique, // (array)
-   
-   // Recursively creates directories 
-   
-   mkdir, // (dir)
+    contains, // (s1, s2)
 
-   // Returns the first argument string s repeated n times
-   
-   repeat
+    // Returns the argument string with the first char capitalized
+
+    capitalize, // (s)
+
+    // Returns the argument string with the first char translated to
+    // lower case
+
+    decapitalize, // (s)
+
+    // Returns the argument string with each letter following a
+    // character that is not a letter translated into upper case.
+
+    toCamelCase, // (s)
+
+    // Returns a new array where any duplicates in the argument array
+    // has been removed
+
+    unique, // (array)
+
+    // Recursively creates directories
+
+    mkdir, // (dir)
+
+    // Returns the first argument string s repeated n times
+
+    repeat
 );
 
 function isString (s)
 {
-   return typeof s === "string" || s instanceof String;
+    return typeof s === "string" || s instanceof String;
 }
 
 function isNumber (n)
 {
-   return typeof n === "number";
+    return typeof n === "number";
 }
 
 function isFunction (f)
 {
-   return typeof f === "function";
+    return typeof f === "function";
 }
 
 function extend (obj, ext)
 {
-   for (var prop in ext)
-      if (ext.hasOwnProperty (prop))
-         obj [prop] = ext [prop];
-   return obj;
+    for (var prop in ext)
+        if (ext.hasOwnProperty (prop))
+            obj [prop] = ext [prop];
+    return obj;
 }
 
 function clone (obj)
 {
-   return extend (new obj.constructor (), obj);
+    return extend (new obj.constructor (), obj);
 }
 
 function isDefined (val)
 {
-   return typeof val !== "undefined";
+    return typeof val !== "undefined";
 }
 
 function isUndefined (val)
 {
-   return typeof val === "undefined";
+    return typeof val === "undefined";
 }
 
 function isArray (val)
 {
-   return Array.isArray (val)
+    return Array.isArray (val)
 }
 
 function toArray (obj)
 {
-   if (obj.toArray)
-      return obj.toArray ();
-   else
-      return Array.prototype.slice.call (obj);
+    if (obj.toArray)
+        return obj.toArray ();
+    else
+        return Array.prototype.slice.call (obj);
 }
 
 function flatten ()
 {
-   var result = [];
-   function inner (a)
-   {
-      a.forEach (function (i) {
-	 if (Array.isArray (i))
-	    inner (i)
-	 else
-	    result.push (i);
-      });
-   }
-   inner (toArray (arguments));
-   return result;
+    var result = [];
+    function inner (a)
+    {
+        a.forEach (function (i) {
+            if (Array.isArray (i))
+                inner (i)
+            else
+                result.push (i);
+        });
+    }
+    inner (toArray (arguments));
+    return result;
 }
 
 function flattenArgs (a, begin, end)
 {
-   if (isDefined (begin))
-      return flatten (toArray (a).slice (begin, end));
-   else
-      return flatten (toArray (a));
+    if (isDefined (begin))
+        return flatten (toArray (a).slice (begin, end));
+    else
+        return flatten (toArray (a));
 }
 
 function toInterface ()
 {
-   var iface = { };
-   toArray (arguments).forEach (function (arg) {
-      if (isFunction (arg))
-	 iface [arg.name] = arg;
-      else
-	 extend (iface, arg);
-   });
-   return iface;
+    var iface = { };
+    toArray (arguments).forEach (function (arg) {
+        if (isFunction (arg))
+            iface [arg.name] = arg;
+        else
+            extend (iface, arg);
+    });
+    return iface;
 }
 
 function setInterface (obj)
 {
-   return extend (obj, toInterface.apply (this, flattenArgs (arguments, 1)));
+    return extend (obj, toInterface.apply (this, flattenArgs (arguments, 1)));
 }
 
 function parseCmdLine (spec, props)
 {
-   return require ("./cmdline").parse (spec, props);
+    return require ("./cmdline").parse (spec, props);
 }
 
 function isEnum (v)
 {
-   return v instanceof Enum;
+    return v instanceof Enum;
 }
 
 function Enum (sym, val)
 {
-   if (isString (sym))
-   {
-      this.sym = sym;
-      this.val = val;
-   }
-   else
-   {
-      for (var i in sym)
-      {
-         this.sym = i;
-         this.val = sym [i];
-      }
-   }
+    if (isString (sym))
+    {
+        this.sym = sym;
+        this.val = val;
+    }
+    else
+    {
+        for (var i in sym)
+        {
+            this.sym = i;
+            this.val = sym [i];
+        }
+    }
 }
 
 extend (Enum.prototype, {
-   toString: function () { return this.sym; },
-   lt: function (o) { return this.val < o.val; },
-   lte: function (o) { return this.val <= o.val; },
-   gt: function (o) { return this.val > o.val; },
-   gte: function (o) { return this.val >= o.val; }
+    toString: function () { return this.sym; },
+    lt: function (o) { return this.val < o.val; },
+    lte: function (o) { return this.val <= o.val; },
+    gt: function (o) { return this.val > o.val; },
+    gte: function (o) { return this.val >= o.val; }
 });
 
 function toEnum ()
 {
-   var symByVal = { }
+    var symByVal = { }
 
-   // Use an ad-hoc constructor to stash the byValue away in the
-   // prototype so that it doesn't become part of the own properties
-   // of the enum.
+    // Use an ad-hoc constructor to stash the byValue away in the
+    // prototype so that it doesn't become part of the own properties
+    // of the enum.
 
-   function localCtor () { }
+    function localCtor () { }
 
-   localCtor.prototype.byValue = function (v) { return symByVal [v]; }
+    localCtor.prototype.byValue = function (v) { return symByVal [v]; }
 
-   var enm = new localCtor ();
-   var val = 0;
-   var syms = flattenArgs (arguments);
-   syms.forEach (function (s) { 
-      var e = new Enum (s, val);
-      enm [s] = e;
-      symByVal [e.val] = e;
-      if (isNumber (e.val))
-         val = e.val + 1;
-   });
-   return enm;
+    var enm = new localCtor ();
+    var val = 0;
+    var syms = flattenArgs (arguments);
+    syms.forEach (function (s) {
+        var e = new Enum (s, val);
+        enm [s] = e;
+        symByVal [e.val] = e;
+        if (isNumber (e.val))
+            val = e.val + 1;
+    });
+    return enm;
 }
 
 function startsWith (s, what)
 {
-   return s.slice (0, what.length) == what;
+    return s.slice (0, what.length) == what;
 }
 
 function endsWith (s, what)
 {
-   return s.slice (-what.length) == what;
+    return s.slice (-what.length) == what;
 }
 
 function append (result /* array ... */)
 {
-   for (var i = 1, len = arguments.length; i < len; ++ i)
-      result.push.apply (result, arguments [i]);
+    for (var i = 1, len = arguments.length; i < len; ++ i)
+        result.push.apply (result, arguments [i]);
 }
 
 function getPropertyArray (obj)
 {
-   return isDefined (obj) ? Object.keys (obj) : [];
+    return isDefined (obj) ? Object.keys (obj) : [];
 }
 
 function normalizeSpace (s)
 {
-   return s.replace (/^\s*|\s*$/g, "").replace (/\s+/g, " ");
+    return s.replace (/^\s*|\s*$/g, "").replace (/\s+/g, " ");
 }
 
 function spaces (len)
 {
-   return Array (len + 1).join (' ');
+    return Array (len + 1).join (' ');
 }
 
 function fill (s, len)
 {
-   var pad = len - s.length;
-   if (pad > 0)
-      return s + spaces (pad);
-   else
-      return s;
+    var pad = len - s.length;
+    if (pad > 0)
+        return s + spaces (pad);
+    else
+        return s;
 }
 
 function capitalize (s)
 {
-   s = (s || "") + "";
-   if (s)
-      return s.charAt (0).toUpperCase () + s.slice (1);
-   else
-      return s;
+    s = (s || "") + "";
+    if (s)
+        return s.charAt (0).toUpperCase () + s.slice (1);
+    else
+        return s;
 }
 
 function decapitalize (s)
 {
-   s = (s || "") + "";
-   if (s)
-      return s.charAt (0).toLowerCase () + s.slice (1);
-   else
-      return s;
+    s = (s || "") + "";
+    if (s)
+        return s.charAt (0).toLowerCase () + s.slice (1);
+    else
+        return s;
 }
 
 function toCamelCase (s)
 {
-   s = (s || "") + "";
-   return s.split (/([^a-zA-Z]+)/).map (function (t) { 
-      return capitalize (t); 
-   }).join ("");
+    s = (s || "") + "";
+    return s.split (/([^a-zA-Z]+)/).map (function (t) {
+        return capitalize (t);
+    }).join ("");
 }
 
 function contains (s1, s2)
 {
-   return s1.indexOf (s2) != -1;
+    return s1.indexOf (s2) != -1;
 }
 
 function unique (a)
 {
-   var u = { }
-   return a.filter (function (i) { return !u [i] && (u [i] = true); });
+    var u = { }
+    return a.filter (function (i) { return !u [i] && (u [i] = true); });
 }
 
 function mkdir (d)
 {
-   var steps = d.split ('/');
-   var p = "";
-   steps.forEach (function (step) {
-      p += step + '/';
-      if (! fs.existsSync (p))
-         fs.mkdirSync (p);
-   });
+    var steps = d.split ('/');
+    var p = "";
+    steps.forEach (function (step) {
+        p += step + '/';
+        if (! fs.existsSync (p))
+            fs.mkdirSync (p);
+    });
 }
 
 function repeat (s, n)
 {
-   return new Array (n + 1).join (s);
+    return new Array (n + 1).join (s);
 }

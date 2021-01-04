@@ -41,363 +41,363 @@ var fs = require ("fs");
 var path = require ("path");
 
 module.provide (
-   entity,
-   renderJava,
-   getJavaFilename,
-   renderCc,
-   tail,
-   indent,
-   noindent,
-   setVariables
+    entity,
+    renderJava,
+    getJavaFilename,
+    renderCc,
+    tail,
+    indent,
+    noindent,
+    setVariables
 );
 
 var variables = "";
 
 function setVariables (s)
 {
-   variables = s;
+    variables = s;
 }
 
 function entity ()
 {
-   return new Entity ();
+    return new Entity ();
 }
 
 function getJavaFilename (dir, pkg, name)
 {
-   var p = dir + "/" + (pkg ? pkg + "/" : "") + name +  ".java";
-   return p;
+    var p = dir + "/" + (pkg ? pkg + "/" : "") + name +  ".java";
+    return p;
 }
 
 function renderJava (ent, name, pkg, dir, props /* or verbosity */)
 {
-   pkg = (pkg || "").replace (/\./g, "/");
-   var p = getJavaFilename (dir, pkg, name);
-   if (fs.existsSync (dir))
-      util.mkdir (path.dirname (p));
-   else
-      throw "Target directory '" + dir + "' must exist"; 
+    pkg = (pkg || "").replace (/\./g, "/");
+    var p = getJavaFilename (dir, pkg, name);
+    if (fs.existsSync (dir))
+        util.mkdir (path.dirname (p));
+    else
+        throw "Target directory '" + dir + "' must exist";
 
-   writeCurlyBraceFamily (p, ent, props);
+    writeCurlyBraceFamily (p, ent, props);
 
-   return p;
+    return p;
 }
 
 function renderCc (ent, file, props /* or verbosity */)
 {
-   writeCurlyBraceFamily (file, ent, props);
+    writeCurlyBraceFamily (file, ent, props);
 }
 
 function writeCurlyBraceFamily (file, ent, props /* or verbosity */)
 {
-   if (util.isNumber (props))
-      props = { verbosity: props };
-   else
-      props = props || { verbosity: 0 };
+    if (util.isNumber (props))
+        props = { verbosity: props };
+    else
+        props = props || { verbosity: 0 };
 
-   var content = renderCurlyBraceFamily (ent);
+    var content = renderCurlyBraceFamily (ent);
 
-   function writeContent ()
-   {
-      if (props.verbosity > 0)
-         console.log ("Writing output to " + file);
-      fs.writeFileSync (file, content);
-   }
+    function writeContent ()
+    {
+        if (props.verbosity > 0)
+            console.log ("Writing output to " + file);
+        fs.writeFileSync (file, content);
+    }
 
-   if (props.onlyModified && fs.existsSync (file))
-   {
-      var exisiting = fs.readFileSync (file);
-      if (content != exisiting)
-         writeContent ();
-      else
-      {
-         if (props.verbosity > 0)
-            console.log ("Skip generating file with identical content: " +
-                         file);
-      }
-   }
-   else
-      writeContent ();
+    if (props.onlyModified && fs.existsSync (file))
+    {
+        var exisiting = fs.readFileSync (file);
+        if (content != exisiting)
+            writeContent ();
+        else
+        {
+            if (props.verbosity > 0)
+                console.log ("Skip generating file with identical content: " +
+                    file);
+        }
+    }
+    else
+        writeContent ();
 }
 
 function renderCurlyBraceFamily (ent)
 {
-   var data = [];
-   var level = 0;
+    var data = [];
+    var level = 0;
 
-   var walker = {
-      onEntity: function (e) {
-         walk (e.comps, walker);
-      },
-      onBlock: function (b) {
-         if (b.text)
-            indentedln (b.text, b.indent, b.noindent);
-         indentedln ("{");
-         ++ level;
-         walk (b.comps, walker);
-         -- level;
-	 if (b.tail)
-            indentedln ("}" + b.tail);
-	 else
-            indentedln ("}");
-      },
-      onLine: function (t)
-      {
-         indentedln (t.text, t.indent);
-      },
-      onComment: function (t)
-      {
-         indentedln (makeComment (t.text));
-      },
-      onList: function (b) {
-         if (b.text)
-            indentedln (b.text, b.indent, b.noindent);
-         indentedln ("{");
-         ++ level;
-         walk (b.comps, listWalker);
-         -- level;
-	 if (b.tail)
-            indentedln ("}" + b.tail);
-	 else
-            indentedln ("}");
-      }
-   };
+    var walker = {
+        onEntity: function (e) {
+            walk (e.comps, walker);
+        },
+        onBlock: function (b) {
+            if (b.text)
+                indentedln (b.text, b.indent, b.noindent);
+            indentedln ("{");
+            ++ level;
+            walk (b.comps, walker);
+            -- level;
+            if (b.tail)
+                indentedln ("}" + b.tail);
+            else
+                indentedln ("}");
+        },
+        onLine: function (t)
+        {
+            indentedln (t.text, t.indent);
+        },
+        onComment: function (t)
+        {
+            indentedln (makeComment (t.text));
+        },
+        onList: function (b) {
+            if (b.text)
+                indentedln (b.text, b.indent, b.noindent);
+            indentedln ("{");
+            ++ level;
+            walk (b.comps, listWalker);
+            -- level;
+            if (b.tail)
+                indentedln ("}" + b.tail);
+            else
+                indentedln ("}");
+        }
+    };
 
-   var listWalker = {
-      onEntity: function (e) {
-         walk (e.comps, walker);
-      },
-      onBlock: function (b, pos, a) {
-         if (b.text)
-            indentedln (b.text, b.indent, b.noindent);
-         indentedln ("{");
-         ++ level;
-         walk (b.comps, walker);
-         -- level;
-         indentedsepln ("}", ",", pos, a);
-      },
-      onLine: function (t, pos, a)
-      {
-         indentedsepln (t.text, ",", pos, a, t.indent);
-      },
-      onComment: function (t, pos, a)
-      {
-         indentedln (makeComment (t.text));
-      },
-      onList: function (b, pos, a) {
-         if (b.text)
-            indentedln (b.text, b.indent, b.noindent);
-         indentedln ("{");
-         ++ level;
-         walk (b.comps, listWalker);
-         -- level;
-         indentedsepln ("}", ",", pos, a);
-      }
-   };
+    var listWalker = {
+        onEntity: function (e) {
+            walk (e.comps, walker);
+        },
+        onBlock: function (b, pos, a) {
+            if (b.text)
+                indentedln (b.text, b.indent, b.noindent);
+            indentedln ("{");
+            ++ level;
+            walk (b.comps, walker);
+            -- level;
+            indentedsepln ("}", ",", pos, a);
+        },
+        onLine: function (t, pos, a)
+        {
+            indentedsepln (t.text, ",", pos, a, t.indent);
+        },
+        onComment: function (t, pos, a)
+        {
+            indentedln (makeComment (t.text));
+        },
+        onList: function (b, pos, a) {
+            if (b.text)
+                indentedln (b.text, b.indent, b.noindent);
+            indentedln ("{");
+            ++ level;
+            walk (b.comps, listWalker);
+            -- level;
+            indentedsepln ("}", ",", pos, a);
+        }
+    };
 
-   function indented (t, adjust, noindent_)
-   {
-      var indent_;
-      if (noindent_)
-         indent_ = 0;
-      else
-         indent_ = level * 2 + (adjust || 0);
-      data.push (util.repeat (" ", indent_));
-      data.push (t);
-   }
+    function indented (t, adjust, noindent_)
+    {
+        var indent_;
+        if (noindent_)
+            indent_ = 0;
+        else
+            indent_ = level * 2 + (adjust || 0);
+        data.push (util.repeat (" ", indent_));
+        data.push (t);
+    }
 
-   function indentedln (t, adjust, noindent_)
-   {
-      indented (t, adjust, noindent_);
-      data.push ("\n");
-   }
+    function indentedln (t, adjust, noindent_)
+    {
+        indented (t, adjust, noindent_);
+        data.push ("\n");
+    }
 
-   function indentedsepln (t, sep, pos, a, adjust)
-   {
-      indented (t, adjust);
-      if (pos < a.length - 1)
-         data.push (sep + "\n");
-      else
-         data.push ("\n");
-   }
+    function indentedsepln (t, sep, pos, a, adjust)
+    {
+        indented (t, adjust);
+        if (pos < a.length - 1)
+            data.push (sep + "\n");
+        else
+            data.push ("\n");
+    }
 
-   function makeComment (t)
-   {
-      return "// " + t.replace (/\n/g, util.repeat (" ", level * 2) + "// ");
-   }
+    function makeComment (t)
+    {
+        return "// " + t.replace (/\n/g, util.repeat (" ", level * 2) + "// ");
+    }
 
-   walk (ent, walker);
-   return data.join ('');
+    walk (ent, walker);
+    return data.join ('');
 }
 
 function tail ()
 {
-   var t = merge (util.toArray (arguments));
-   return function (comp) { comp.tail = t; };
+    var t = merge (util.toArray (arguments));
+    return function (comp) { comp.tail = t; };
 }
 
 function indent (amount)
 {
-   return function (comp) { comp.indent = amount; };
+    return function (comp) { comp.indent = amount; };
 }
 
 function noindent ()
 {
-   return function (comp) { comp.noindent = true; };
+    return function (comp) { comp.noindent = true; };
 }
 
 function Entity ()
 {
-   this.comps = [];
+    this.comps = [];
 }
 
 util.extend (Entity.prototype, {
-   ln: function () { 
-      this.comps.push (create (Line, util.toArray (arguments)));
-      return this;
-   },
-   comment: function () { 
-      this.comps.push (create (Comment, util.toArray (arguments)));
-      return this;
-   },
-   block: function () { 
-      var comp = create (Block, util.toArray (arguments));
-      this.comps.push (comp);
-      return comp;
-   },
-   list: function () { 
-      var comp = create (List, util.toArray (arguments));
-      this.comps.push (comp);
-      return comp;
-   },
-   visit: function (w, pos, a) { visit (w.onEntity, w, this, pos, a); },
-   append: function (ent) {
-      util.append (this.comps, ent.comps);
-   }
+    ln: function () {
+        this.comps.push (create (Line, util.toArray (arguments)));
+        return this;
+    },
+    comment: function () {
+        this.comps.push (create (Comment, util.toArray (arguments)));
+        return this;
+    },
+    block: function () {
+        var comp = create (Block, util.toArray (arguments));
+        this.comps.push (comp);
+        return comp;
+    },
+    list: function () {
+        var comp = create (List, util.toArray (arguments));
+        this.comps.push (comp);
+        return comp;
+    },
+    visit: function (w, pos, a) { visit (w.onEntity, w, this, pos, a); },
+    append: function (ent) {
+        util.append (this.comps, ent.comps);
+    }
 });
 
 function create (ctor, args)
 {
-   var comp = new ctor ();
-   comp.text = merge (args, comp);
-   return comp;
+    var comp = new ctor ();
+    comp.text = merge (args, comp);
+    return comp;
 }
 
 function merge (args, comp)
 {
-   var t = [];
-   for (var i = 0; i < args.length; ++ i)
-   {
-      var a = args [i];
-      if (util.isArray (a))
-         t.push (merge (a, comp));
-      else if (util.isFunction (a))
-         t.push (a (comp) || "");
-      else
-      {
-         a = a.toString ();
-         if (isFormat (a))
-         {
-            t.push (format (a, util.flatten (args.slice (i + 1))));
-            break;
-         }
-         else
-            t.push (a);
-      }
-   }
-   return t.join ('');
+    var t = [];
+    for (var i = 0; i < args.length; ++ i)
+    {
+        var a = args [i];
+        if (util.isArray (a))
+            t.push (merge (a, comp));
+        else if (util.isFunction (a))
+            t.push (a (comp) || "");
+        else
+        {
+            a = a.toString ();
+            if (isFormat (a))
+            {
+                t.push (format (a, util.flatten (args.slice (i + 1))));
+                break;
+            }
+            else
+                t.push (a);
+        }
+    }
+    return t.join ('');
 }
 
 function isFormat (f)
 {
-   return !! f.match ("[%" + variables + "]");
+    return !! f.match ("[%" + variables + "]");
 }
 
 function format (f, args)
 {
-   if (variables)
-   {
-      var pat = new RegExp ("(\\\\?[" + variables + "]|%s|%d)");
-      var parts = f.split (pat);
-      var bindings = { };
-      return parts.map (function (p) {
-         if (p.length === 1 && variables.indexOf (p) !== -1)
-         {
-            if (! (p in bindings))
+    if (variables)
+    {
+        var pat = new RegExp ("(\\\\?[" + variables + "]|%s|%d)");
+        var parts = f.split (pat);
+        var bindings = { };
+        return parts.map (function (p) {
+            if (p.length === 1 && variables.indexOf (p) !== -1)
             {
-               if (args.length)
-                  bindings [p] = args.splice (0, 1) [0];
-               else
-                  bindings [p] = p;
+                if (! (p in bindings))
+                {
+                    if (args.length)
+                        bindings [p] = args.splice (0, 1) [0];
+                    else
+                        bindings [p] = p;
 
+                }
+
+                return bindings [p];
             }
-
-            return bindings [p];
-         }
-         else if (p.length === 2 && p.charAt (0) === '\\' &&
-                  variables.indexOf (p.charAt (1)) !== -1)
-         {
-            return p.charAt (1);
-         }
-         else if (args.length && (p === "%s" || p === "%d"))
-         {
-            return ndu.format (p, args.splice (0, 1) [0]);
-         }
-         else
-            return p;
-      }).join ('');
-   }
-   else
-      return ndu.format.apply (ndu, [f].concat (args));
+            else if (p.length === 2 && p.charAt (0) === '\\' &&
+                variables.indexOf (p.charAt (1)) !== -1)
+            {
+                return p.charAt (1);
+            }
+            else if (args.length && (p === "%s" || p === "%d"))
+            {
+                return ndu.format (p, args.splice (0, 1) [0]);
+            }
+            else
+                return p;
+        }).join ('');
+    }
+    else
+        return ndu.format.apply (ndu, [f].concat (args));
 }
 
 function Line ()
 {
-   this.text = "";
+    this.text = "";
 }
 
 util.extend (Line.prototype, {
-   visit: function (w, pos, a) { visit (w.onLine, w, this, pos, a); }
+    visit: function (w, pos, a) { visit (w.onLine, w, this, pos, a); }
 });
 
 function Comment ()
 {
-   this.text = "";
+    this.text = "";
 }
 
 util.extend (Comment.prototype, {
-   visit: function (w, pos, a) { visit (w.onComment, w, this, pos, a); }
+    visit: function (w, pos, a) { visit (w.onComment, w, this, pos, a); }
 });
 
 function Block () // extends Entity
 {
-   Entity.call (this);
-   this.text = "";
+    Entity.call (this);
+    this.text = "";
 }
 
 Block.prototype = new Entity ();
 Block.prototype.constructor = Block;
 util.extend (Block.prototype, {
-   visit: function (w, pos, a) { visit (w.onBlock, w, this, pos, a); }
+    visit: function (w, pos, a) { visit (w.onBlock, w, this, pos, a); }
 });
 
 function List () // extends Block
 {
-   Block.call (this);
+    Block.call (this);
 }
 
 List.prototype = new Block ();
 List.prototype.constructor = List;
 util.extend (List.prototype, {
-   visit: function (w, pos, a) { visit (w.onList, w, this, pos, a); }
+    visit: function (w, pos, a) { visit (w.onList, w, this, pos, a); }
 });
 
 function walk (comp, walker)
 {
-   if (util.isArray (comp))
-      comp.forEach (function (c, pos) { c.visit (walker, pos, comp); });
-   else
-      comp.visit (walker);
+    if (util.isArray (comp))
+        comp.forEach (function (c, pos) { c.visit (walker, pos, comp); });
+    else
+        comp.visit (walker);
 }
 
 function noop ()
@@ -406,5 +406,5 @@ function noop ()
 
 function visit (primary, w, comp, pos, a)
 {
-   (primary || w.onAny || noop).call (w, comp, pos, a);
+    (primary || w.onAny || noop).call (w, comp, pos, a);
 }

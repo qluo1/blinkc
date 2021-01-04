@@ -46,48 +46,48 @@
 // module.provide (fn ...)
 
 if (module.constructor !== Object)
-   module.constructor.prototype.provide = function () {
-      var ex = this.exports;
-      toArray (arguments).forEach (function (arg) {
-         if (isFunction (arg))
-	    ex [arg.name] = arg;
-         else
-	    extend (ex, arg);
-      });
-   }
+    module.constructor.prototype.provide = function () {
+        var ex = this.exports;
+        toArray (arguments).forEach (function (arg) {
+            if (isFunction (arg))
+                ex [arg.name] = arg;
+            else
+                extend (ex, arg);
+        });
+    }
 
 // Cannot use the util.* variant of these three functions since it
 // would create a circular dependency
 
 function extend (obj, ext)
 {
-   for (var prop in ext)
-      if (ext.hasOwnProperty (prop))
-         obj [prop] = ext [prop];
-   return obj;
+    for (var prop in ext)
+        if (ext.hasOwnProperty (prop))
+            obj [prop] = ext [prop];
+    return obj;
 }
 
 function toArray (obj)
 {
-   if (obj.toArray)
-      return obj.toArray ();
-   else
-      return Array.prototype.slice.call (obj);
+    if (obj.toArray)
+        return obj.toArray ();
+    else
+        return Array.prototype.slice.call (obj);
 }
 
 function isFunction (f)
 {
-   return typeof f === "function";
+    return typeof f === "function";
 }
 
 // Provide nicer logging of otherwise uncaught exceptions
 
 process.on ("uncaughtException", function (evt) {
-   var s = evt.toString ();
-   if (s.indexOf ("Error:") == -1 && s.indexOf ("error:") == -1)
-      s = "Error: " + s;
-   console.error (s);
-   if (evt.stack && s != evt.stack)
-      console.error (evt.stack);
-   process.exit (1);
+    var s = evt.toString ();
+    if (s.indexOf ("Error:") == -1 && s.indexOf ("error:") == -1)
+        s = "Error: " + s;
+    console.error (s);
+    if (evt.stack && s != evt.stack)
+        console.error (evt.stack);
+    process.exit (1);
 });
